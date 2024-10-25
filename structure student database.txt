@@ -1,0 +1,806 @@
+#include <iostream>
+#include <string>
+
+
+using namespace std;
+
+#define MAXROW 70
+#define MAXCOL 7
+// Structure to store student information
+struct Student {
+    string name;
+    int rollNo;
+    float marks[MAXCOL - 2]; // Exclude columns for roll number and grade
+    char grade;
+};
+
+// Function Prototypes
+void readFun(Student students[], int& nn);
+void appFun(Student students[], int& nn);
+int searchFun(const Student students[], int nn, int s);
+void delFun(Student students[], int& nn);
+void updFun(Student students[], int& nn);
+void dispFun(const Student students[], int nn);
+char calculateGrade(float averageMarks);
+int main() {
+    // Declarations
+    Student students[MAXROW];
+    int n = 0;
+    int pos;
+    int sinfo;
+    int choice;
+
+    // Menu
+    do {
+        cout << "************** RESULT CARD  MENU ************" << endl
+     
+            << " 1. Read & Store Data " << endl
+            << " 2. Append new record " << endl
+            << " 3. Search a record " << endl
+            << " 4. Delete a record " << endl
+            << " 5. Update a record " << endl
+            << " 6. Display Result Card " << endl
+            << " 7. Exit " << endl;
+
+        cout << "Enter your choice: ";
+        cin >> choice;
+        switch (choice) {
+            case 1:
+                if (n != 0) {
+                    cout << "Existing data will be deleted...\n";
+                    n = 0;
+                }
+                readFun(students, n);
+                break;
+            case 2:
+                appFun(students, n);
+                break;
+            case 3:
+                if (n != 0) {
+                    cout << "Enter Student Roll Number to search: ";
+                    cin >> sinfo;
+                    pos = searchFun(students, n, sinfo);
+                    if (pos == -1)
+                        cout << "Student with Roll Number: " << sinfo << " not found" << endl;
+                    else
+                        cout << "Student with Roll Number: " << sinfo << " found at Position: " << pos + 1 << endl;
+                } else
+                    cout << "First, store data using Option-1...\n";
+                break;
+         
+            case 4:
+                if (n != 0) {
+                    delFun(students, n);
+                } else
+                    cout << "First, store data using Option-1...\n";
+                break;
+            case 5:
+                if (n != 0) {
+                    updFun(students, n);
+                } else
+                    cout << "First, store data using Option-1...\n";
+                break;
+            case 6:
+                if (n != 0) {
+                    dispFun(students, n);
+                } else
+                    cout << "First, store data using Option-1...\n";
+                break;
+            case 7:
+                exit(0);
+            default:
+                cout << "Invalid Choice...\n";
+        } // end of switch
+    } while (true);
+    return 0;
+} // end of main
+
+
+// Function Definitions
+
+void readFun(Student students[], int& nn) {
+    char grade;
+    cout << "Enter the number of students: ";
+    cin >> nn;
+
+    for (int i = 0; i < nn; i++) {
+        cout << "Enter student "<<i+1<<" name: ";
+        cin.ignore();
+        getline(cin, students[i].name);
+        cout << "Enter roll number for student "<<i+1<<":";
+        cin >> students[i].rollNo;
+        cout << "Enter marks for 3 subjects: "<<endl;
+        for (int j = 0; j < 3; j++) {
+            cout<<"Enter marks for  subject  "<<j+1<<" (less than 100) : ";
+            cin >> students[i].marks[j];
+         
+        }
+         float averageMarks = (students[i].marks[0] + students[i].marks[1] + students[i].marks[2]) / 3.0;
+          cout<<"Average marks are : "<<averageMarks<<endl;
+          char grade=calculateGrade(averageMarks);
+          cout<<"Grade is : "<<grade<<endl;
+    }
+    cout << "Data stored successfully." << endl;
+}
+
+void appFun(Student students[], int& nn) {
+    if (nn < MAXROW) {
+        cout << "Enter student name: ";
+        cin.ignore();
+        getline(cin, students[nn].name);
+        cout << "Enter roll number: ";
+        cin >> students[nn].rollNo;
+        cout << "Enter marks for 3 subjects: ";
+        for (int j = 0; j < 3; j++) {
+            cin >> students[nn].marks[j];
+        }
+        float averageMarks = (students[nn].marks[0] + students[nn].marks[1] + students[nn].marks[2]) / 3.0;
+        students[nn].grade = calculateGrade(averageMarks);
+        nn++;
+        cout << "Record added successfully." << endl;
+    } else {
+        cout << "ARRAY is Full...\n";
+    }
+}
+
+int searchFun(const Student students[], int nn, int s) {
+    for (int i = 0; i < nn; i++) {
+        if (students[i].rollNo == s) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void delFun(Student students[], int& nn) {
+    int sinfo;
+    cout << "Enter roll number to delete: ";
+    cin >> sinfo;
+    int pos = searchFun(students, nn, sinfo);
+    if (pos != -1) {
+        for (int i = pos; i < nn - 1; i++) {
+            students[i] = students[i + 1];
+        }
+        nn--;
+        cout << "Record deleted successfully." << endl;
+    } else {
+        cout << "Student not found." << endl;
+    }
+}
+
+void updFun(Student students[], int& nn) {
+    int sinfo;
+    cout << "Enter roll number to update: ";
+    cin >> sinfo;
+    int pos = searchFun(students, nn, sinfo);
+    if (pos != -1) {
+        cout << "Enter updated student name: ";
+        cin.ignore();
+        getline(cin, students[pos].name);
+        cout << "Enter updated marks for 3 subjects: ";
+        for (int j = 0; j < 3; j++) {
+            cin >> students[pos].marks[j];
+        }
+        float averageMarks = (students[pos].marks[0] + students[pos].marks[1] + students[pos].marks[2]) / 3.0;
+        students[pos].grade = calculateGrade(averageMarks);
+        cout << "Record updated successfully." << endl;
+    } else {
+        cout << "Student not found." << endl;
+    }
+}
+
+void dispFun(const Student students[], int nn) {
+    cout << "**********Student Records**********" << endl;
+    for (int i = 0; i < nn; i++) {
+        cout << "Name: " << students[i].name << " || Roll No: " << students[i].rollNo << " || Marks: ";
+        for (int j = 0; j < 3; j++) {
+            cout << students[i].marks[j] << " ";
+        }
+        cout << "|| Grade: " << students[i].grade << endl;
+    }
+}
+
+// Function to calculate the grade based on average marks
+char calculateGrade(float averageMarks) {
+    if (averageMarks >= 90) return 'A';
+    else if (averageMarks >= 80) return 'B';
+    else if (averageMarks >= 70) return 'C';
+    else if (averageMarks >= 60) return 'D';
+    else return 'F';
+}
+
+
+
+*********************************************************************************************************************************************************************************************************************
+
+
+
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+#define MAXROW 70
+#define MAXCOL 7
+
+// Structure to store student information
+struct Student {
+    string name;
+    int rollNo;
+    float marks[3]; // Fixed size for marks in 3 subjects
+    char grade;
+};
+
+// Function Prototypes
+void readFun(Student* students[], int& nn);
+void appFun(Student* students[], int& nn);
+int searchFun(Student* students[], int nn, int s);
+void delFun(Student* students[], int& nn);
+void updFun(Student* students[], int& nn);
+void dispFun(Student* students[], int nn);
+char calculateGrade(float averageMarks);
+
+int main() {
+    Student* students[MAXROW];
+    int n = 0;
+    int pos;
+    int sinfo;
+    int choice;
+
+    // Menu
+    do {
+        cout << "************** RESULT CARD  MENU ************" << endl
+             << " 1. Read & Store Data " << endl
+             << " 2. Append new record " << endl
+             << " 3. Search a record " << endl
+             << " 4. Delete a record " << endl
+             << " 5. Update a record " << endl
+             << " 6. Display Result Card " << endl
+             << " 7. Exit " << endl;
+
+        cout << "Enter your choice: ";
+        cin >> choice;
+        switch (choice) {
+            case 1:
+                if (n != 0) {
+                    cout << "Existing data will be deleted...\n";
+                    for (int i = 0; i < n; i++) {
+                        delete students[i]; // Free memory for each student
+                    }
+                    n = 0;
+                }
+                readFun(students, n);
+                break;
+            case 2:
+                appFun(students, n);
+                break;
+            case 3:
+                if (n != 0) {
+                    cout << "Enter Student Roll Number to search: ";
+                    cin >> sinfo;
+                    pos = searchFun(students, n, sinfo);
+                    if (pos == -1)
+                        cout << "Student with Roll Number: " << sinfo << " not found" << endl;
+                    else
+                        cout << "Student with Roll Number: " << sinfo << " found at Position: " << pos + 1 << endl;
+                } else
+                    cout << "First, store data using Option-1...\n";
+                break;
+            case 4:
+                if (n != 0) {
+                    delFun(students, n);
+                } else
+                    cout << "First, store data using Option-1...\n";
+                break;
+            case 5:
+                if (n != 0) {
+                    updFun(students, n);
+                } else
+                    cout << "First, store data using Option-1...\n";
+                break;
+            case 6:
+                if (n != 0) {
+                    dispFun(students, n);
+                } else
+                    cout << "First, store data using Option-1...\n";
+                break;
+            case 7:
+                // Free memory for all student records before exiting
+                for (int i = 0; i < n; i++) {
+                    delete students[i];
+                }
+                exit(0);
+            default:
+                cout << "Invalid Choice...\n";
+        } // end of switch
+    } while (true);
+    return 0;
+} // end of main
+
+// Function Definitions
+void readFun(Student* students[], int& nn) {
+    char grade;
+    cout << "Enter the number of students: ";
+    cin >> nn;
+
+    for (int i = 0; i < nn; i++) {
+        students[i] = new Student(); // Allocate memory for a new student
+        cout << "Enter student " << i + 1 << " name: ";
+        cin.ignore();
+        getline(cin, students[i]->name);
+        cout << "Enter roll number for student " << i + 1 << ":";
+        cin >> students[i]->rollNo;
+        cout << "Enter marks for 3 subjects: " << endl;
+        for (int j = 0; j < 3; j++) {
+            cout << "Enter marks for subject " << j + 1 << " (less than 100) : ";
+            cin >> students[i]->marks[j];
+        }
+        float averageMarks = (students[i]->marks[0] + students[i]->marks[1] + students[i]->marks[2]) / 3.0;
+        cout << "Average marks are : " << averageMarks << endl;
+        students[i]->grade = calculateGrade(averageMarks);
+        cout << "Grade is : " << students[i]->grade << endl;
+    }
+    cout << "Data stored successfully." << endl;
+}
+
+void appFun(Student* students[], int& nn) {
+    if (nn < MAXROW) {
+        students[nn] = new Student(); // Allocate memory for a new student
+        cout << "Enter student name: ";
+        cin.ignore();
+        getline(cin, students[nn]->name);
+        cout << "Enter roll number: ";
+        cin >> students[nn]->rollNo;
+        cout << "Enter marks for 3 subjects: ";
+        for (int j = 0; j < 3; j++) {
+            cin >> students[nn]->marks[j];
+        }
+        float averageMarks = (students[nn]->marks[0] + students[nn]->marks[1] + students[nn]->marks[2]) / 3.0;
+        students[nn]->grade = calculateGrade(averageMarks);
+        nn++;
+        cout << "Record added successfully." << endl;
+    } else {
+        cout << "ARRAY is Full...\n";
+    }
+}
+
+int searchFun(const Student* students[], int nn, int s) {
+    for (int i = 0; i < nn; i++) {
+        if (students[i]->rollNo == s) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void delFun(Student* students[], int& nn) {
+    int sinfo;
+    cout << "Enter roll number to delete: ";
+    cin >> sinfo;
+    int pos = searchFun(students, nn, sinfo);
+    if (pos != -1) {
+        delete students[pos]; // Free memory for the deleted student
+        for (int i = pos; i < nn - 1; i++) {
+            students[i] = students[i + 1];
+        }
+        nn--;
+        cout << "Record deleted successfully." << endl;
+    } else {
+        cout << "Student not found." << endl;
+    }
+}
+
+void updFun(Student* students[], int& nn) {
+    int sinfo;
+    cout << "Enter roll number to update: ";
+    cin >> sinfo;
+    int pos = searchFun(students, nn, sinfo);
+    if (pos != -1) {
+        cout << "Enter updated student name: ";
+        cin.ignore();
+        getline(cin, students[pos]->name);
+        cout << "Enter updated marks for 3 subjects: ";
+        for (int j = 0; j < 3; j++) {
+            cin >> students[pos]->marks[j];
+        }
+        float averageMarks = (students[pos]->marks[0] + students[pos]->marks[1] + students[pos]->marks[2]) / 3.0;
+        students[pos]->grade = calculateGrade(averageMarks);
+        cout << "Record updated successfully." << endl;
+    } else {
+        cout << "Student not found." << endl;
+    }
+}
+
+void dispFun(const Student* students[], int nn) {
+    cout << "**********Student Records**********" << endl;
+    for (int i = 0; i < nn; i++) {
+        cout << "Name: " << students[i]->name << " || Roll No: " << students[i]->rollNo << " || Marks: ";
+        for (int j = 0; j < 3; j++) {
+            cout << students[i]->marks[j] << " ";
+        }
+        cout << "|| Grade: " << students[i]->grade << endl;
+    }
+}
+
+// Function to calculate the grade based on average marks
+char calculateGrade(float averageMarks) {
+    if (averageMarks >= 90) return 'A';
+    else if (averageMarks >= 80) return 'B';
+    else if (averageMarks >= 70) return 'C';
+    else if (averageMarks >= 60) return 'D';
+    else return 'F';
+}
+
+*************************************************************************************************************************
+
+
+
+// Singly Linked List using C++
+// Dr. M. Nadeem
+// **************************
+#include <iostream>
+using namespace std;
+
+// Node declaration
+struct node{
+    int data;
+    node *next;
+};
+
+int main(){
+    // declarations
+    char ch1;
+    int ch2;
+    int ch3;
+     int newData;
+    node *first = NULL,     // Store the address of first node
+        *cur = NULL,        // Store the address of current node
+        *prev = NULL;       // Store the address of previous node
+    
+    do{
+        cout << "********* MENU ******" << endl
+             << " 1. Create Singly Linked List" << endl
+             << " 2. Display Singly Linked List " << endl
+             << " 3. Insertion in Singly Linked List" << endl
+             << " 4. Deletion in Singly Linked List" << endl
+             << " 5. Average of Data in Singly Linked List" << endl
+             << " 6. Exit" << endl
+             << " Enter your choice: ";
+        cin >> ch2;
+    
+        switch (ch2)
+        {
+            case 1: // Creation
+                do{
+                    cur = new node;
+                    cur->next = NULL;
+                    cout << "Enter data: ";
+                    cin >> cur-> data;
+        
+                    if (!first)             // if it is first node
+                        first = prev = cur;
+                    else
+                    {
+                        prev->next = cur;
+                        prev = cur;
+                    }
+        
+                    cout << "Do you want to create another node [y/n]: ";
+                    cin >> ch1;
+                    if ((ch1 == 'N')||(ch1 == 'n')) break;
+                } while (true); // end of do while
+                break;
+                
+            case 2: // display linked List
+                cur = first;
+                cout << "Data Items: " << endl;
+                while (cur)
+                {
+                    cout << cur-> data << endl;
+                    cur = cur-> next;
+                }
+                break;
+                case 3:
+                //insertion of the nodes
+                cout<<"*********MENU FOR THE INSERTION**********"<<endl<<"7. Insertion of the node at the first"<<endl<<"8. Insertion of node at any last"<<endl<<"9. Insertion of node at any position:"<<endl;
+                cout<<"Enter your choice for insertion:";
+                cin>>ch3;
+                switch(ch3)
+                {
+                case 7:
+                
+    cout << "Enter data to insert: ";
+    cin >>newData;
+
+    // Create a new node
+    cur = new node;
+    cur->data = newData;
+    cur->next = first; // Set the new node's next to the current first node
+
+    first = cur; // Update the first node to be the new node
+    cout << "Node inserted at the beginning successfully!" << endl;
+    break;
+    
+    case 8:
+    int newData;
+    cout << "Enter data to insert: ";
+    cin >> newData;
+
+    // Create a new node
+    cur = new node;
+    cur->data = newData;
+    cur->next = nullptr; // The new node will be the last, so set its next to nullptr
+
+    if (!first) { // If the list is empty
+        first = cur; // Set the new node as the first node
+    } else {
+        // Traverse to the end of the list
+        node* temp = first;
+        while (temp->next) {
+            temp = temp->next;
+        }
+
+        // Link the last node to the new node
+        temp->next = cur;
+    }
+    
+    cout << "Node inserted at the end successfully!" << endl;
+    break;
+                
+       case 9: // Insertion of node at any position
+{
+    int position;
+    cout << "Enter the position to insert (1-based index): ";
+    cin >> position;
+
+    if (position < 1) {
+        cout << "Invalid position. Position should be a positive integer." << endl;
+        break;
+    }
+
+    cout << "Enter data to insert: ";
+    cin >> newData;
+
+    // Create a new node
+    cur = new node;
+    cur->data = newData;
+    
+    // Handle the case where the node is inserted at the beginning
+    if (position == 1) {
+        cur->next = first;
+        first = cur;
+    } else {
+        // Traverse the list to find the node at the previous position
+        node* temp = first;
+        for (int i = 1; i < position - 1; i++) {
+            if (temp == nullptr) {
+                cout << "Invalid position. List is shorter than the specified position." << endl;
+                delete cur; // Clean up the new node
+                break;
+            }
+            temp = temp->next;
+        }
+        
+        // Insert the new node after the previous node
+        if (temp != nullptr) {
+            cur->next = temp->next;
+            temp->next = cur;
+        }
+    }
+    
+    cout << "Node inserted at position " << position << " successfully!" << endl;
+    break;
+}
+                }         
+            case 6: // Exit
+                return 0;
+        } // end of switch
+        
+    } while (true);// end of outer DO - Menu
+
+}// end of main
+
+********************************************************************************************************************
+
+
+
+
+
+
+
+
+
+
+// Student Data Baase program in C++ (Using Pointers)
+// Compiler used: https://www.onlinegdb.com/online_c++_compiler
+// Dr. M. Nadeem
+//********************************************************************************
+#include <iostream>
+#include <string>
+#define MAXSUB 5    // Five subjects
+#define MAXSTUDENT 70
+using namespace std;
+// Student Database
+// Define the structure for a date and student
+struct Date {
+    int dd,mm,yy;
+};
+struct Student {
+    int regNum;
+    string name;
+    string fname;
+    int marks[MAXSUB];
+    Date dob, doa;
+    float cgpa;
+};
+
+// Function definitions
+void creatDB(Student *ss, int nn){
+    for(int i=0; i<nn; i++){
+     cout<<"Enter Data for Student Number: " << i+1 << endl;    
+     cout << "Enter student reg number: ";
+     cin >> (ss+i)->regNum;
+     cin.ignore();
+     cout << "Enter student name: ";
+     getline(cin,(ss+i)->name);
+     cout << "Enter student father name: ";
+     getline(cin, (ss+i)->fname);
+     cout << "Enter marks (out of 100):" << endl;
+     for (int j = 0; j < MAXSUB; j++) {
+        cout << "Marks in Subject " << j + 1 << ": ";
+        cin >> (ss+i)->marks[j];
+     }// end of for - j
+     cout << "Enter Date of Birth: " << endl;
+     cout << "Enter Day: "; cin >> (ss+i)->dob.dd;
+     cout << "Enter Month: "; cin >> (ss+i)->dob.mm;
+     cout << "Enter Year: "; cin >> (ss+i)->dob.yy;
+     
+     cout << "Enter Date of Admission: " << endl;
+     cout << "Enter Day: "; cin >> ss[i].doa.dd;
+     cout << "Enter Month: "; cin >> ss[i].doa.mm;
+     cout << "Enter Year: "; cin >> ss[i].doa.yy;
+     
+     cout << "Enter CGPA: "; cin >> ss[i].cgpa;
+     
+     cout << "Student added successfully!" << endl;  
+    } // end of for - i
+} // end of function
+
+void appRec(Student ss[], int& nn) {
+    if (nn == 0){
+        cout << "Data Base is empty..." << endl;
+        return;
+    }
+    cout<<"Enter Data for Student Number: " << nn << endl;
+    cout << "Enter student reg number: ";
+    cin >> ss[nn].regNum;
+    cout << "Enter student name: ";
+    cin >> ss[nn].name;
+    cin.ignore(30,'\n');
+    cout << "Enter student father name: ";
+    cin >> ss[nn].fname;
+    cin.ignore(30,'\n');
+    cout << "Enter marks (out of 100):" << endl;
+    for (int j = 0; j < MAXSUB; j++) {
+        cout << "Marks in Subject " << j+1 << ": ";
+        cin >> ss[nn].marks[j];
+    }// end of for - j
+    cout << "Enter Date of Birth: " << endl;
+    cout << "Enter Day: "; cin >> ss[nn].dob.dd;
+    cout << "Enter Month: "; cin >> ss[nn].dob.mm;
+    cout << "Enter Year: "; cin >> ss[nn].dob.yy;
+     
+    cout << "Enter Date of Admission: " << endl;
+    cout << "Enter Day: "; cin >> ss[nn].doa.dd;
+    cout << "Enter Month: "; cin >> ss[nn].doa.mm;
+    cout << "Enter Year: "; cin >> ss[nn].doa.yy;
+     
+    cout << "Enter CGPA: "; cin >> ss[nn].cgpa;
+    
+    nn++;
+}// end of function
+
+int searchRec(Student ss[], int nn, int s) {
+    int loc = -1;
+    if (nn == 0)
+        cout << "No students in the database." << endl;
+    else {
+        for (int i = 0; i < nn; i++)
+        {
+            if (s == ss[i].regNum)
+            {
+                loc = i;
+                break;
+            }
+        }
+    }
+    return loc;
+ }// end of function
+ 
+void delRec(Student ss[], int& nn, int s) {
+    
+}
+void updRec(Student ss[], int nn, int s);
+
+void dispRes(Student * ss, int nn)
+{
+    int mobt;
+    for(int i=0; i<nn; i++){
+     cout << (ss+i)->regNum << endl;
+     cout << (ss+i)->name << endl;
+     cout << (ss+i)->fname << endl;
+     // calculate marks obtained
+     mobt = 0;
+     for (int j = 0; j < MAXSUB; j++) {
+        mobt += (ss+i)->marks[j];
+     }// end of for - j
+     
+     cout << "Marks Obtained: " << mobt << "/" << MAXSUB*100 << endl;
+     cout << "Date of Birth: " << (ss+i)->dob.dd << "/" << (ss+i)->dob.mm << "/" << (ss+i)->dob.yy << endl;
+     cout << "Date of Admission: " << (ss+i)->doa.dd << "/" << (ss+i)->doa.mm << "/" << (ss+i)->doa.yy << endl; 
+     cout << "CGPA: "; cout << (ss+i)->cgpa;
+    } // end of for - i
+} // end of function
+
+int main() {
+    // Declarations
+    Student s[MAXSTUDENT];
+    int n=0, ch, sinfo, index;
+
+    do {
+        cout << "\n\nStudent Database Menu:" << endl
+             << "1. Create Data Base" << endl
+             << "2. Append a record" << endl
+             << "3. Search a record" << endl
+             << "4. Delete a record" << endl
+             << "5. Update a record" << endl
+             << "6. Display Result" << endl
+             << "7. Exit" << endl
+             << "Enter your choice: ";
+        cin >> ch;
+        switch (ch) {
+            case 1: // Create DB
+                cout<<"Enter how many students are [MAX. 70]: ";
+                cin>>n;
+                creatDB(s, n);
+                break;
+            case 2: // Append
+                appRec(s, n);
+                break;
+            case 3: // Searching
+                cout << "Enter reg. number to search: ";
+                cin >> sinfo;
+                index = searchRec(s, n, sinfo);
+                if (index != -1)
+                    cout<<"Found at position: "<<index+1<<endl;
+                else
+                    cout<<"Not Found in the Data Base"<<endl;
+                break;
+             case 4: // Deletion
+                //int roll;
+                //cout << "Enter roll number to search: ";
+                //cin >> roll;
+                //searchStudent(students, studentCount, roll);
+                break;    
+             case 5: // Updation
+                //int roll;
+                //cout << "Enter roll number to search: ";
+                //cin >> roll;
+                //searchStudent(students, studentCount, roll);
+                break;
+             case 6: // Display Result Card
+                dispRes(s, n);
+                break;
+            case 7: // Exit
+                cout<<" ALLAH HAFIZ..."<<endl;
+                return 0;
+            default:
+                cout << "Invalid choice. Enter again..." << endl;
+        }// end of switch
+    } while (true);
+    return 0;
+}// end of main
+
+
+***************************************************************************************************************************************
+*************************************************************************************************************************
